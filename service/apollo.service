@@ -1,0 +1,14 @@
+[Unit]
+Description=Apollo service - Acaia Lunar add-on
+BindsTo=bluetooth.target
+
+[Service]
+ExecStart=python3 /opt/apollo/apollo.py
+Restart=always
+TimeoutSec=10
+MemoryMax=336M
+#TODO: bluepy seems to want root access, fix later
+User=root
+
+[Install]
+WantedBy=multi-user.target
