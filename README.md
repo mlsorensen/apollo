@@ -21,6 +21,7 @@ Note that where external links are provided, they may not age well.
 * A Raspberry Pi Zero 2 W w/soldered header
 * 5v relay w/3.3v compatible logic control
 * 5v 2a power supply
+* 2.1mm barrel jack connector/wiring harness
 * pushbutton switch x 2
 * toggle switch
 * up/down rocker switch (or two pushbutton switches)
