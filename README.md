@@ -1,7 +1,6 @@
 
 # Apollo for LM Micra/Acaia Lunar
 
-----------------------------------------------
 Apollo helps land espresso on your Lunar scale. This project adds brew-by-weight and a small controller 
 for La Marzocco Micra with Acaia Lunar. It may also work with other Acaia Bluetooth scales like Pyxis. 
 
@@ -29,6 +28,7 @@ Note that where external links are provided, they may not age well.
 * Screws - M2.0, M2.5 4mm length, or #3-24 in 1/4" length depending on your 3d printer tolerances
 * Silicone 24AWG hook up wire
 * Soldering tool and/or 2.54mm crimping set
+* 3d printed enclosure, or self-provided alternative
 
 ### Controller
 
@@ -67,20 +67,23 @@ wiring up to the Raspberry Pi header.
 ![image](./doc/wiring%20diagram.png)
 
 To simplify the wiring of power and controls between the Micra and the controller, I created a custom harness. This 
-keeps the ground and power connections for the relay and switches in the Micra, with just one ground and one wire
-per IO going back to the controller.
+keeps the ground and power connections for the relay and switches in the Micra, with just 5v,ground and one wire
+per IO going back to the controller (4 pins total).
 
 ![image](./doc/internal_harness.jpg)
 
 ### Enclosure
 
-The enclosure STL file can be found [here](doc/Apollo_2inch_v2.stl).  Looking from the inside, the display mounts with
+The enclosure STL file can be found [here](doc/Apollo_2inch_v2.stl).
+
+![image](./doc/enclosure-front.png)
+
+Looking from the inside, the display mounts with
 four screws to the far side, and the Raspberry Pi mounts to the standoffs on the right.  Unless you have a flexible
 attachment for your screwdriver, you may only be able to reach the closest two standoffs, and that should be
 sufficient to firmly attach the Pi. Route the wiring through the cutout and then up into the group area through the open
 hole by the steam wand.
 
-![image](./doc/enclosure-front.png)
 ![image](./doc/enclosure-back.png)
 
 The backplate is designed to mount to the Micra on the right of the machine, using the large screw hole. Then the
