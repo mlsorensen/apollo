@@ -136,6 +136,8 @@ sudo systemctl enable --now apollo
 
 ## Software Development
 
+![image](./doc/design.png)
+
 ### ControlManager
 
 This controls the physical devices. It defines buttons, keeps state, and maintains scale connectivity.
@@ -156,5 +158,7 @@ decided drawing the graph using simple lines was sufficient and performant.
 The main loop is responsible for basic logic of setting up a Display and ControlManager, then orchestrating data
 collection and state updates.
 
-![image](./doc/design.png)
+### Display
 
+A single frame can be generated using `test_display.py` for design changes to the display. Running `pytest` should be
+sufficient to discover this test, run it, and open the resulting image on your workstation.

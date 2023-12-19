@@ -1,0 +1,24 @@
+# test_display.py
+import random
+
+from lib import display
+from lib.control import TargetMemory
+from lib.display import DisplayData
+
+
+# test_generate_frame should pop up a sample display frame for developing/designing the layout
+def test_generate_frame():
+    flow_data = []
+    for i in range(0, 20):
+        flow_data.append(0)
+    for i in range(0, 100):
+        flow_data.append(random.uniform(2.5, 2.9))
+    for i in range(0, 100):
+        flow_data.append(random.uniform(3.5, 3.9))
+    for i in range(0, 10):
+        flow_data.append(0)
+    memory = TargetMemory("G", "orange")
+    memory.target = 45
+    data = DisplayData(234.1, 0.1, memory, flow_data, 59, True, True, 22.1, False)
+    img = display.draw_frame(240, 320, data)
+    img.show()

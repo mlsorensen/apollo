@@ -9,8 +9,14 @@ from typing import Optional
 
 from PIL import Image, ImageFont, ImageDraw
 
-from lib import LCD_2inch4, LCD_2inch
 from lib.control import TargetMemory
+
+label_font = ImageFont.truetype("lib/font/LiberationMono-Regular.ttf", 16)
+value_font = ImageFont.truetype("lib/font/Quicksand-Regular.ttf", 36)
+value_font_bold = ImageFont.truetype("lib/font/Quicksand-Bold.ttf", 36)
+
+bg_color = "BLACK"
+fg_color = "WHITE"
 
 
 class FlowGraph:
@@ -54,11 +60,11 @@ class FlowGraph:
         draw.line(points, fill=self.series_color, width=2)
 
         # 6g label
-        draw.text((0, self.y_pix * .25 - 20), "6", self.label_color, Display.label_font)
+        draw.text((0, self.y_pix * .25 - 20), "6", self.label_color, label_font)
         # 4g label
-        draw.text((0, self.y_pix / 2 - 20), "4", self.label_color, Display.label_font)
+        draw.text((0, self.y_pix / 2 - 20), "4", self.label_color, label_font)
         # 2g label
-        draw.text((0, self.y_pix * .75 - 20), "2", self.label_color, Display.label_font)
+        draw.text((0, self.y_pix * .75 - 20), "2", self.label_color, label_font)
         return img
 
     def __draw_y_line(self, draw: ImageDraw, y, color):
@@ -85,12 +91,8 @@ class DisplaySize(Enum):
 
 
 class Display:
-    label_font = ImageFont.truetype("/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf", 16)
-    value_font = ImageFont.truetype("/usr/share/fonts/truetype/quicksand/Quicksand-Regular.ttf", 36)
-    value_font_bold = ImageFont.truetype("/usr/share/fonts/truetype/quicksand/Quicksand-Bold.ttf", 36)
-
-    def __init__(self, data_queue: Queue, bg_color="BLACK", fg_color="WHITE",
-                 display_size: DisplaySize = DisplaySize.SIZE_2_0, image_save_dir: str = None):
+    def __init__(self, data_queue: Queue, display_size: DisplaySize = DisplaySize.SIZE_2_0, image_save_dir: str = None):
+        from lib import LCD_2inch4, LCD_2inch
         if display_size == DisplaySize.SIZE_2_4:
             self.lcd = LCD_2inch4.LCD_2inch4()
         elif display_size == DisplaySize.SIZE_2_0:
@@ -101,9 +103,7 @@ class Display:
         self.lcd.clear()
         self.on = True
         self.data_queue: Queue[DisplayData] = data_queue
-        self.bg_color = bg_color
-        self.fg_color = fg_color
-        self.flow_image = Image.new("RGBA", (0, 0), self.bg_color)
+        self.flow_image = Image.new("RGBA", (0, 0), bg_color)
         self.display_off()
         self.process = None
         self.image_save_dir = image_save_dir
@@ -122,7 +122,7 @@ class Display:
         if self.on:
             self.lcd.clear()
             self.lcd.Off()
-            img = Image.new("RGBA", (self.lcd.width, self.lcd.height), self.bg_color)
+            img = Image.new("RGBA", (self.lcd.width, self.lcd.height), bg_color)
             self.lcd.ShowImage(img, 0, 0)
             self.on = False
 
@@ -177,55 +177,64 @@ class Display:
                 logging.error("Skipping display redraw because battery value is missing")
                 continue
 
-            img = Image.new("RGBA", (self.lcd.width, self.lcd.height), self.bg_color)
-            draw = ImageDraw.Draw(img)
-
-            # main boxes are 120 wide x 96 high
-            draw.line([(0, 80), (240, 80)], fill=self.fg_color, width=2)
-            draw.line([(120, 0), (120, 80)], fill=self.fg_color, width=2)
-            draw.line([(0, 285), (240, 285)], fill=self.fg_color, width=2)
-
-            draw.text((16, 8), "weight(g)", self.fg_color, Display.label_font)
-            draw.text((130, 8), "target %s(g)" % data.memory.name, self.fg_color, Display.label_font)
-
-            paddle_value = "ON" if data.paddle_on else "OFF"
-            draw.text((8, 292), "paddle:%s" % paddle_value, self.fg_color, Display.label_font)
-            draw.text((124, 292), "battery:%d%%" % data.battery, self.fg_color, Display.label_font)
-
-            fmt_weight = "{:0.1f}".format(data.weight)
-            w, h = draw.textsize(fmt_weight, Display.value_font)
-            draw.text(((120 - w) / 2, (96 - h) / 2), fmt_weight, self.fg_color, Display.value_font)
-
-            fmt_target = "{:0.1f}".format(data.memory.target)
-            target_font = Display.value_font
-            if data.target_locked:
-                target_font = Display.value_font_bold
-            w, h = draw.textsize(fmt_target, target_font)
-            draw.text(((120 - w) / 2 + 120, (96 - h) / 2), fmt_target, self.fg_color, target_font)
-
-            fmt_ready = "Ready"
-            w, h = draw.textsize(fmt_ready, Display.value_font)
-            h_pos = 164
-            draw.rectangle((116 - w / 2, h_pos, 124 + w / 2, h_pos + h + 4), self.bg_color, data.memory.color, 4)
-            draw.text((120 - w / 2, h_pos), fmt_ready, self.fg_color, Display.value_font)
-
-            if data.flow_data is not None and len(data.flow_data) > 0:
-                self.flow_image = FlowGraph(data.flow_data, data.memory.color).generate_graph()
-                last_flow_rate = data.flow_data[-1] if data.flow_data[-1] > 0 else 0
-                last_sample_time = data.sample_rate * float(len(data.flow_data))
-
-                fmt_flow = "flow:{:0.2f}(g/s)".format(last_flow_rate)
-                w, h = draw.textsize(fmt_flow, self.label_font)
-                draw.text(((240 - w) / 2, 88), fmt_flow, self.fg_color, Display.label_font)
-
-                draw.text((8, 262), "%ds" % math.ceil(last_sample_time), self.fg_color, Display.label_font)
-                draw.text((220, 262), "0s", self.fg_color, Display.label_font)
-
-                fmt_shot_time = "shot:{:0.1f}s".format(data.shot_time_elapsed)
-                w, h = draw.textsize(fmt_shot_time, self.label_font)
-                draw.text(((240 - w) / 2, 262), fmt_shot_time, self.fg_color, Display.label_font)
-
-            img.paste(self.flow_image, (0, 112))
+            img = draw_frame(self.lcd.width, self.lcd.height, data)
             if data.save_image:
                 self.save_image(img)
             self.lcd.ShowImage(img, 0, 0)
+
+
+def draw_frame(width: int, height: int, data: DisplayData) -> Image:
+    img = Image.new("RGBA", (width, height), bg_color)
+    draw = ImageDraw.Draw(img)
+
+    # main boxes are 120 wide x 96 high
+    draw.line([(0, 80), (240, 80)], fill=fg_color, width=2)
+    draw.line([(120, 0), (120, 80)], fill=fg_color, width=2)
+    draw.line([(0, 285), (240, 285)], fill=fg_color, width=2)
+
+    draw.text((16, 8), "weight(g)", fg_color, label_font)
+    draw.text((130, 8), "target %s(g)" % data.memory.name, fg_color, label_font)
+
+    paddle_value = "ON" if data.paddle_on else "OFF"
+    draw.text((8, 292), "paddle:%s" % paddle_value, fg_color, label_font)
+    draw.text((124, 292), "battery:%d%%" % data.battery, fg_color, label_font)
+
+    fmt_weight = "{:0.1f}".format(data.weight)
+    w = draw.textlength(fmt_weight, value_font)
+    h = value_font.size
+    draw.text(((120 - w) / 2, (96 - h) / 2), fmt_weight, fg_color, value_font)
+
+    fmt_target = "{:0.1f}".format(data.memory.target)
+    target_font = value_font
+    if data.target_locked:
+        target_font = value_font_bold
+    w = draw.textlength(fmt_target, target_font)
+    h = target_font.size
+    draw.text(((120 - w) / 2 + 120, (96 - h) / 2), fmt_target, fg_color, target_font)
+
+    fmt_ready = "Ready"
+    w = draw.textlength(fmt_ready, value_font)
+    h = value_font.size
+    h_pos = 164
+    draw.rectangle((116 - w / 2, h_pos, 124 + w / 2, h_pos + h + 4), bg_color, data.memory.color, 4)
+    draw.text((120 - w / 2, h_pos), fmt_ready, fg_color, value_font)
+
+    if data.flow_data is not None and len(data.flow_data) > 0:
+        flow_image = FlowGraph(data.flow_data, data.memory.color).generate_graph()
+        last_flow_rate = data.flow_data[-1] if data.flow_data[-1] > 0 else 0
+        last_sample_time = data.sample_rate * float(len(data.flow_data))
+
+        fmt_flow = "flow:{:0.2f}(g/s)".format(last_flow_rate)
+        w = draw.textlength(fmt_flow, label_font)
+        draw.text(((240 - w) / 2, 88), fmt_flow, fg_color, label_font)
+
+        draw.text((8, 262), "%ds" % math.ceil(last_sample_time), fg_color, label_font)
+        draw.text((220, 262), "0s", fg_color, label_font)
+
+        fmt_shot_time = "shot:{:0.1f}s".format(data.shot_time_elapsed)
+        w = draw.textlength(fmt_shot_time, label_font)
+        draw.text(((240 - w) / 2, 262), fmt_shot_time, fg_color, label_font)
+
+        img.paste(flow_image, (0, 112))
+
+    return img
