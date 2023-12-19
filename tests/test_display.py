@@ -12,9 +12,9 @@ def test_generate_frame():
     for i in range(0, 20):
         flow_data.append(0)
     for i in range(0, 100):
-        flow_data.append(random.uniform(2.5, 2.9))
+        flow_data.append(random.uniform(1.0, 3.0))
     for i in range(0, 100):
-        flow_data.append(random.uniform(3.5, 3.9))
+        flow_data.append(random.uniform(3.0, 5.0))
     for i in range(0, 10):
         flow_data.append(0)
     memory = TargetMemory("G", "orange")

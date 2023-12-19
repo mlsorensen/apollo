@@ -1,10 +1,8 @@
 import logging
-import time
 from collections import deque
 from timeit import default_timer as timer
 from typing import Optional
 
-import pandas as pd
 from gpiozero import Button, DigitalOutputDevice
 
 import lib.pyacaia as pyacaia
@@ -42,6 +40,8 @@ class ControlManager:
     PADDLE_GPIO = 20
     RELAY_GPIO = 26
     BOUNCE = 250
+
+    FLOW_RATE_SMOOTHING = 10
 
     def __init__(self, max_flow_points=500):
         self.flow_rate_data = deque([])
@@ -86,11 +86,6 @@ class ControlManager:
             self.flow_rate_data.append(data_point)
             if len(self.flow_rate_data) > self.flow_rate_max_points:
                 self.flow_rate_data.popleft()
-
-    def flow_rate_moving_avg(self) -> list:
-        flow_data_series = pd.Series(self.flow_rate_data)
-        flow_data_windows = flow_data_series.rolling(6)
-        return flow_data_windows.mean().dropna().to_list()
 
     def disable_relay(self):
         logging.info("disable relay")

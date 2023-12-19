@@ -2,6 +2,7 @@ import logging
 import math
 import os.path
 import time
+import pandas as pd
 from datetime import datetime
 from enum import Enum
 from multiprocessing import Process, Queue
@@ -73,7 +74,8 @@ class FlowGraph:
 
 class DisplayData:
     def __init__(self, weight: float, sample_rate: float, memory: TargetMemory, flow_data: list, battery: int,
-                 paddle_on: bool, tgt_locked: bool, shot_time_elapsed: float, save_image: bool = False):
+                 paddle_on: bool, tgt_locked: bool, shot_time_elapsed: float, save_image: bool = False,
+                 flow_smooth_factor: int = 12):
         self.weight = weight
         self.sample_rate = sample_rate
         self.memory = memory
@@ -83,6 +85,12 @@ class DisplayData:
         self.target_locked = tgt_locked
         self.shot_time_elapsed = shot_time_elapsed
         self.save_image = save_image
+        self.flow_smooth_factor = flow_smooth_factor
+
+    def flow_rate_moving_avg(self) -> list:
+        flow_data_series = pd.Series(self.flow_data)
+        flow_data_windows = flow_data_series.rolling(self.flow_smooth_factor)
+        return flow_data_windows.mean().dropna().to_list()
 
 
 class DisplaySize(Enum):
@@ -220,7 +228,7 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
     draw.text((120 - w / 2, h_pos), fmt_ready, fg_color, value_font)
 
     if data.flow_data is not None and len(data.flow_data) > 0:
-        flow_image = FlowGraph(data.flow_data, data.memory.color).generate_graph()
+        flow_image = FlowGraph(data.flow_rate_moving_avg(), data.memory.color).generate_graph()
         last_flow_rate = data.flow_data[-1] if data.flow_data[-1] > 0 else 0
         last_sample_time = data.sample_rate * float(len(data.flow_data))
 

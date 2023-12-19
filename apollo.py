@@ -96,7 +96,7 @@ def update_display(scale: AcaiaScale, mgr: ControlManager, display: Display, las
         changed = weight - last_weight
         g_per_s = 1 / sample_rate * changed
         mgr.add_flow_rate_data(g_per_s)
-    data = DisplayData(weight, sample_rate, mgr.current_memory(), mgr.flow_rate_moving_avg(),
+    data = DisplayData(weight, sample_rate, mgr.current_memory(), mgr.flow_rate_data,
                        scale.battery, mgr.relay_on(), mgr.target_locked(), mgr.shot_time_elapsed(),
                        mgr.image_needs_save)
     display.display_on()
