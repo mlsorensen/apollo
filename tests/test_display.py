@@ -17,7 +17,8 @@ def test_generate_frame():
         flow_data.append(random.uniform(3.0, 5.0))
     for i in range(0, 10):
         flow_data.append(0)
-    memory = TargetMemory("G", "orange")
+    flow_data.append(1.2)
+    memory = TargetMemory("F", "orange")
     memory.target = 45
     data = DisplayData(234.1, 0.1, memory, flow_data, 59, True, True, 22.1, False)
     img = display.draw_frame(240, 320, data)

@@ -30,8 +30,11 @@ class FlowGraph:
         self.line_color = line_color
         self.y_pix = height_pixels
         self.x_pix = width_pixels
-        self.x_pix_interval = width_pixels / len(flow_data)
         self.y_pix_interval = height_pixels / max_value
+        if len(flow_data) > 0:
+            self.x_pix_interval = width_pixels / len(flow_data)
+        else:
+            self.x_pix_interval = width_pixels / 1
 
     def generate_graph(self) -> Image:
         points = list()
@@ -75,7 +78,7 @@ class FlowGraph:
 class DisplayData:
     def __init__(self, weight: float, sample_rate: float, memory: TargetMemory, flow_data: list, battery: int,
                  paddle_on: bool, tgt_locked: bool, shot_time_elapsed: float, save_image: bool = False,
-                 flow_smooth_factor: int = 12):
+                 flow_smooth_factor: int = 8):
         self.weight = weight
         self.sample_rate = sample_rate
         self.memory = memory
@@ -228,21 +231,25 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
     draw.text((120 - w / 2, h_pos), fmt_ready, fg_color, value_font)
 
     if data.flow_data is not None and len(data.flow_data) > 0:
-        flow_image = FlowGraph(data.flow_rate_moving_avg(), data.memory.color).generate_graph()
-        last_flow_rate = data.flow_data[-1] if data.flow_data[-1] > 0 else 0
+        flow_rate_data = data.flow_rate_moving_avg()
+        flow_image = FlowGraph(flow_rate_data, data.memory.color).generate_graph()
+        last_flow_rate = flow_rate_data[-1] if len(flow_rate_data) > 0 else 0
         last_sample_time = data.sample_rate * float(len(data.flow_data))
-
-        fmt_flow = "flow:{:0.2f}(g/s)".format(last_flow_rate)
-        w = draw.textlength(fmt_flow, label_font)
-        draw.text(((240 - w) / 2, 88), fmt_flow, fg_color, label_font)
 
         draw.text((8, 262), "%ds" % math.ceil(last_sample_time), fg_color, label_font)
         draw.text((220, 262), "0s", fg_color, label_font)
 
-        fmt_shot_time = "shot:{:0.1f}s".format(data.shot_time_elapsed)
+        fmt_shot_time = "shot time:{:0.1f}s".format(data.shot_time_elapsed)
         w = draw.textlength(fmt_shot_time, label_font)
-        draw.text(((240 - w) / 2, 262), fmt_shot_time, fg_color, label_font)
+        draw.text(((240 - w) / 2, 88), fmt_shot_time, fg_color, label_font)
 
         img.paste(flow_image, (0, 112))
+
+        fmt_flow = "{:0.1f}".format(last_flow_rate)
+        fmt_flow_label = "g/s"
+        w = draw.textlength(fmt_flow, value_font)
+        wl = draw.textlength(fmt_flow_label, label_font)
+        draw.text(((236 - w - wl), 106), fmt_flow, fg_color, value_font)
+        draw.text(((240 - wl), 128), fmt_flow_label, fg_color, label_font)
 
     return img
