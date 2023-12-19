@@ -19,6 +19,7 @@ from lib.webserver import WebServer
 
 WEB_PORT = 80
 WEB_DIR = '/opt/apollo/web'
+MIN_GOOD_SHOT_DURATION = 10
 
 stop = False
 overshoot_update_executor = ThreadPoolExecutor(max_workers=1)
@@ -39,6 +40,9 @@ logging.basicConfig(
 
 
 def update_overshoot(scale: AcaiaScale, mgr: ControlManager):
+    if mgr.shot_time_elapsed() < MIN_GOOD_SHOT_DURATION:
+        logging.info("Declining to consider short shot as a good shot. Not updating overshoot value or saving image")
+        return
     time.sleep(3)
     logging.debug("over scale weight is %.2f, target was %.2f" % (scale.weight, mgr.current_memory().target))
     mgr.current_memory().update_overshoot(scale.weight)

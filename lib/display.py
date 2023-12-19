@@ -22,7 +22,7 @@ fg_color = "WHITE"
 
 class FlowGraph:
     def __init__(self, flow_data: list, series_color="BLUE", label_color="#c7c7c7", line_color="#5a5a5a", max_value=8,
-                 width_pixels=240, height_pixels=148):
+                 width_pixels=240, height_pixels=160):
         self.flow_data = flow_data
         self.max_value = max_value
         self.series_color = series_color
@@ -63,12 +63,14 @@ class FlowGraph:
         # data series line
         draw.line(points, fill=self.series_color, width=2)
 
+        # 8g label
+        draw.text((2, 0), "8", self.label_color, label_font)
         # 6g label
-        draw.text((0, self.y_pix * .25 - 20), "6", self.label_color, label_font)
+        draw.text((2, self.y_pix * .25), "6", self.label_color, label_font)
         # 4g label
-        draw.text((0, self.y_pix / 2 - 20), "4", self.label_color, label_font)
+        draw.text((2, self.y_pix * .5), "4", self.label_color, label_font)
         # 2g label
-        draw.text((0, self.y_pix * .75 - 20), "2", self.label_color, label_font)
+        draw.text((2, self.y_pix * .75), "2", self.label_color, label_font)
         return img
 
     def __draw_y_line(self, draw: ImageDraw, y, color):
@@ -199,29 +201,33 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
     draw = ImageDraw.Draw(img)
 
     # main boxes are 120 wide x 96 high
-    draw.line([(0, 80), (240, 80)], fill=fg_color, width=2)
-    draw.line([(120, 0), (120, 80)], fill=fg_color, width=2)
+    draw.line([(0, 96), (240, 96)], fill=fg_color, width=2)
+    draw.line([(120, 0), (120, 96)], fill=fg_color, width=2)
     draw.line([(0, 285), (240, 285)], fill=fg_color, width=2)
 
-    draw.text((16, 8), "weight(g)", fg_color, label_font)
-    draw.text((130, 8), "target %s(g)" % data.memory.name, fg_color, label_font)
+    # weight and target labels
+    draw.text((16, 16), "weight(g)", fg_color, label_font)
+    draw.text((130, 16), "target %s(g)" % data.memory.name, fg_color, label_font)
 
+    # paddle and battery
     paddle_value = "ON" if data.paddle_on else "OFF"
-    draw.text((8, 292), "paddle:%s" % paddle_value, fg_color, label_font)
-    draw.text((124, 292), "battery:%d%%" % data.battery, fg_color, label_font)
+    draw.text((8, 294), "paddle:%s" % paddle_value, fg_color, label_font)
+    draw.text((124, 294), "battery:%d%%" % data.battery, fg_color, label_font)
 
+    # weight value
     fmt_weight = "{:0.1f}".format(data.weight)
     w = draw.textlength(fmt_weight, value_font)
     h = value_font.size
-    draw.text(((120 - w) / 2, (96 - h) / 2), fmt_weight, fg_color, value_font)
+    draw.text(((120 - w) / 2, (108 - h) / 2), fmt_weight, fg_color, value_font)
 
+    # target value
     fmt_target = "{:0.1f}".format(data.memory.target)
     target_font = value_font
     if data.target_locked:
         target_font = value_font_bold
     w = draw.textlength(fmt_target, target_font)
     h = target_font.size
-    draw.text(((120 - w) / 2 + 120, (96 - h) / 2), fmt_target, fg_color, target_font)
+    draw.text(((120 - w) / 2 + 120, (108 - h) / 2), fmt_target, fg_color, target_font)
 
     fmt_ready = "Ready"
     w = draw.textlength(fmt_ready, value_font)
@@ -236,14 +242,14 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
         last_flow_rate = flow_rate_data[-1] if len(flow_rate_data) > 0 else 0
         last_sample_time = data.sample_rate * float(len(data.flow_data))
 
-        draw.text((8, 262), "%ds" % math.ceil(last_sample_time), fg_color, label_font)
-        draw.text((220, 262), "0s", fg_color, label_font)
+        draw.text((4, 262), "%ds" % math.ceil(last_sample_time), fg_color, label_font)
+        draw.text((218, 262), "0s", fg_color, label_font)
 
-        fmt_shot_time = "shot time:{:0.1f}s".format(data.shot_time_elapsed)
+        fmt_shot_time = "timer:{:0.1f}s".format(data.shot_time_elapsed)
         w = draw.textlength(fmt_shot_time, label_font)
-        draw.text(((240 - w) / 2, 88), fmt_shot_time, fg_color, label_font)
+        draw.text(((240 - w) / 2, 262), fmt_shot_time, fg_color, label_font)
 
-        img.paste(flow_image, (0, 112))
+        img.paste(flow_image, (0, 98))
 
         fmt_flow = "{:0.1f}".format(last_flow_rate)
         fmt_flow_label = "g/s"
