@@ -71,6 +71,14 @@ class FlowGraph:
         draw.text((2, self.y_pix * .5), "4", self.label_color, label_font)
         # 2g label
         draw.text((2, self.y_pix * .75), "2", self.label_color, label_font)
+
+        last_flow_rate = self.flow_data[-1] if len(self.flow_data) > 0 else 0
+        fmt_flow = "{:0.1f}".format(last_flow_rate)
+        fmt_flow_label = "g/s"
+        w = draw.textlength(fmt_flow, value_font)
+        wl = draw.textlength(fmt_flow_label, label_font)
+        draw.text(((236 - w - wl), 0), fmt_flow, fg_color, value_font)
+        draw.text(((240 - wl), value_font.size - label_font.size), fmt_flow_label, fg_color, label_font)
         return img
 
     def __draw_y_line(self, draw: ImageDraw, y, color):
@@ -239,7 +247,6 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
     if data.flow_data is not None and len(data.flow_data) > 0:
         flow_rate_data = data.flow_rate_moving_avg()
         flow_image = FlowGraph(flow_rate_data, data.memory.color).generate_graph()
-        last_flow_rate = flow_rate_data[-1] if len(flow_rate_data) > 0 else 0
         last_sample_time = data.sample_rate * float(len(data.flow_data))
 
         draw.text((4, 262), "%ds" % math.ceil(last_sample_time), fg_color, label_font)
@@ -250,12 +257,5 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
         draw.text(((240 - w) / 2, 262), fmt_shot_time, fg_color, label_font)
 
         img.paste(flow_image, (0, 98))
-
-        fmt_flow = "{:0.1f}".format(last_flow_rate)
-        fmt_flow_label = "g/s"
-        w = draw.textlength(fmt_flow, value_font)
-        wl = draw.textlength(fmt_flow_label, label_font)
-        draw.text(((236 - w - wl), 106), fmt_flow, fg_color, value_font)
-        draw.text(((240 - wl), 128), fmt_flow_label, fg_color, label_font)
 
     return img
