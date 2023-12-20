@@ -7,9 +7,9 @@ for La Marzocco Micra with Acaia Lunar. It may also work with other Acaia Blueto
 This project is more about scale integration than Micra integration. It cannot do flow profiling or other advanced 
 control over the Micra, it is simply collecting data from the scale and acting as a proxy for the paddle switch.
 
-**This is a hobby project, as such there is no support.** Contributions are welcome, though this is
-very much designed to work according to my needs, for customization I'd suggest forking and 
-making it your own.
+**This is a hobby project, as such there is no support.** It is sort of a hack/proof of concept being beaten into shape.
+Contributions are welcome, though this is very much designed to work according to my needs, for customization I'd 
+suggest forking and making it your own.
 
 ## Hardware
 
@@ -72,6 +72,13 @@ per IO going back to the controller (4 pins total).
 
 ![image](./doc/internal_harness.jpg)
 
+The Micra paddle is accessible by removing the top four screws above the group head. Here, you would find a wiring
+bundle containing black and white wires connecting to the paddle. These have bullet connectors which can be 
+disconnected. You can insert the relay and Pi into this circuit to read the paddle state and control the Micra (or 
+perhaps another device).
+
+![image](./doc/paddle_connectors.jpeg)
+
 ### Enclosure
 
 The enclosure STL file can be found [here](doc/Apollo_2inch_v2.stl).
@@ -133,6 +140,9 @@ sudo cp service/apollo.env /etc/default/apollo
 sudo systemctl daemon-reload
 sudo systemctl enable --now apollo
 ```
+
+By default, the software scans for any Lunar device in the vicinity and connects to it. There is no simple
+way to set a specific scale MAC address yet.
 
 ## Software Development
 
