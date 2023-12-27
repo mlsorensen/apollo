@@ -1,4 +1,5 @@
 import logging
+import time
 from collections import deque
 from timeit import default_timer as timer
 from typing import Optional
@@ -125,9 +126,10 @@ def try_connect_scale(scale: AcaiaScale) -> bool:
         if not scale.connected:
             scale.device = None
             devices = pyacaia.find_acaia_devices(timeout=2)
+            time.sleep(1)
             if devices:
                 scale.mac = devices[0]
-                logging.info("calling connect on mac %s" % scale.mac)
+                logging.debug("calling connect on mac %s" % scale.mac)
                 scale.connect()
                 # if scale.weight is None:
                 #     logging.error("Connected but no weight, need to reconnect")

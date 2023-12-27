@@ -117,6 +117,8 @@ Choose Interfacing Options -> SPI -> Yes  to enable the SPI interface
 Next, we want to release memory from the GPU for system use. Still in `raspi-config`, under Performance -> GPU Memory limit 
 set to 16M.
 
+Finally, we want to disable the login UI. Under System Options -> Boot / Auto Login choose "Console" 
+
 ```commandline
 sudo reboot
 ```
