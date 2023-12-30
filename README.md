@@ -81,21 +81,28 @@ perhaps another device).
 
 ### Enclosure
 
-The enclosure STL file can be found [here](doc/Apollo_2inch_v2.stl).
+The enclosure STL file can be found [here](doc/Apollo_2inch_v2.stl). It may need fine tuning, depending on the accuracy
+and tolerances of your printer.
 
 ![image](./doc/enclosure-front.png)
 
-Looking from the inside, the display mounts with
-four screws to the far side, and the Raspberry Pi mounts to the standoffs on the right.  Unless you have a flexible
-attachment for your screwdriver, you may only be able to reach the closest two standoffs, and that should be
-sufficient to firmly attach the Pi. Route the wiring through the cutout and then up into the group area through the open
-hole by the steam wand.
+Looking from the inside, the display mounts with four screws to the far side, along with the buttons.
 
-![image](./doc/enclosure-back.png)
+![image](./doc/enclosure-display-attach.jpg)
 
-The backplate is designed to mount to the Micra on the right of the machine, using the large screw hole. Then the
-enclosure hangs on the plate from the top clamshell-style. Once hung, a screw can be inserted to fasten the bottom of 
-the enclosure to the plate.
+The Raspberry Pi mounts above the display, using the standoffs on the right. There are only two mounts for the Pi. 
+![image](./doc/enclosure-pi-attach.jpg)
+
+In all cases be careful not to over-tighten. Ensure everything is connected properly. Route the wiring for the 
+paddle/power through the cutout and then up into the group area through the open hole by the steam wand.
+
+The backplate is designed to mount to the Micra on the right of the machine, using the large screw hole. Optional 8mm
+magnets can be placed to aid installation and help secure the top of the plate.
+
+![image](./doc/enclosure-back-mount.jpg)
+
+Then the enclosure hangs on the plate from the top clamshell-style. Once hung, a screw can be inserted to fasten the 
+bottom of the enclosure to the plate.
 
 ![image](./doc/enclosure-mounted.jpg)
 
