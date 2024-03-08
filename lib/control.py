@@ -2,7 +2,7 @@ import logging
 import time
 from collections import deque
 from timeit import default_timer as timer
-from typing import Optional
+from typing import Optional, Callable
 
 from gpiozero import Button, DigitalOutputDevice
 
@@ -40,9 +40,8 @@ class ControlManager:
     TGT_DEC_GPIO = 16
     PADDLE_GPIO = 20
     RELAY_GPIO = 26
-    BOUNCE = 250
 
-    FLOW_RATE_SMOOTHING = 10
+    FLOW_RATE_SMOOTHING = 12
 
     def __init__(self, max_flow_points=500):
         self.flow_rate_data = deque([])
@@ -73,7 +72,7 @@ class ControlManager:
 
         self.target_lock_button = Button(ControlManager.TGT_LOCK_GPIO, pull_up=True)
 
-    def add_tare_handler(self, callback):
+    def add_tare_handler(self, callback: Callable):
         self.tare_button.when_pressed = callback
 
     def target_locked(self) -> bool:
@@ -117,6 +116,10 @@ class ControlManager:
     def __start_shot(self):
         logging.info("Start shot")
         self.flow_rate_data = deque([])
+        if self.target_locked() and self.tare_button.when_pressed is not None:
+            self.tare_button.when_pressed()
+            logging.info("Sent tare to scale")
+            time.sleep(.5)
         self.shot_timer_start = timer()
         self.relay.on()
 
@@ -145,3 +148,4 @@ def try_connect_scale(scale: AcaiaScale) -> bool:
     except Exception as ex:
         logging.error("Failed to connect to found device:%s" % str(ex))
         return False
+
