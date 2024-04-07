@@ -4,6 +4,7 @@ BindsTo=bluetooth.target
 
 [Service]
 ExecStart=python3 /opt/apollo/apollo.py
+WorkingDirectory=/opt/apollo
 Restart=always
 TimeoutSec=10
 MemoryMax=336M
