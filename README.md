@@ -133,7 +133,7 @@ sudo reboot
 ### Software dependencies
 
 ```commandline
-sudo apt install python3-pandas
+sudo apt install python3-pandas libglib2.0-dev
 sudo pip3 install bluepy
 ```
 

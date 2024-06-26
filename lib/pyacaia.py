@@ -54,14 +54,18 @@ def find_acaia_devices(timeout=3, backend='bluepy'):
     elif backend == 'bluepy':
 
         try:
-            from bluepy.btle import Scanner, DefaultDelegate
+            from bluepy.btle import Scanner, DefaultDelegate, BTLEDisconnectError
 
             class ScanDelegate(DefaultDelegate):
                 def __init__(self):
                     DefaultDelegate.__init__(self)
 
             scanner = Scanner().withDelegate(ScanDelegate())
-            devices = scanner.scan(timeout)
+            try:
+                devices = scanner.scan(timeout)
+            except BTLEDisconnectError:
+                print("Disconnected error, retry")
+                devices = scanner.scan(timeout)
 
             addresses = []
             for dev in devices:
@@ -447,6 +451,7 @@ class AcaiaScale(object):
         self.beep_on = None
         # if true, timer is running
         self.timer_running = False
+        self.receiving_notifications = False
 
     def get_elapsed_time(self):
         """Return the time displayed on the timer, in seconds"""
@@ -499,6 +504,7 @@ class AcaiaScale(object):
                 if msg.msgType == 5:
                     self.weight = msg.value
                     logging.debug('weight: ' + str(msg.value) + ' ' + str(time.time()))
+                    self.receiving_notifications = True
                 elif msg.msgType == 7:
                     self.timer_start_time = time.time() - msg.time
                     self.timer_running = True
@@ -516,6 +522,8 @@ class AcaiaScale(object):
 
         if self.connected:
             return
+
+        self.receiving_notifications = False
 
         self.queue = Queue(self.callback_queue)
 
@@ -683,12 +691,10 @@ class AcaiaScale(object):
                     # if self.isPyxisStyle:
                     #    self.char.write(encodeGetSettings(), withResponse=False)
                     logging.debug('Heartbeat success')
-                    if self.weight is None:
-                        logging.error("Why aren't we getting weight notifications? resubscribe")
-                        self.device.writeCharacteristic(
-                            self.notifyDescriptors[0].handle,
-                            bytearray([0x01, 0x00]), True)
+                    if not self.receiving_notifications:
+                        logging.error("We aren't receiving notifications, reidentify")
                         self.ident()
+
             elif self.backend == 'pygatt':
                 self.device.char_write_handle(self.handle, encodeHeartbeat(), wait_for_response=False)
                 logging.debug('Heartbeat success')
@@ -743,7 +749,6 @@ class AcaiaScale(object):
         self.timer_running = False
 
     def disconnect(self):
-
         self.connected = False
         if self.device:
 
