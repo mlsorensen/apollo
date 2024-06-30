@@ -3,10 +3,11 @@
 This folder contains three models for a recessed Acaia Lunar drip tray on the Micra. This includes a 1/2" NPT
 connection that can be plugged with a standard 1/2" fitting if there is no plumbing. 
 
-These are advanced prints due to their size and the need to use higher temperature filament like ABS, ASA, or PC. Even
-with higher temp plastic, avoid shocking the tray with large amounts of boiling water or it can expand and crack if
-layers aren't strongly bonded. Along with the regular tricks for printing ABS, I would recommend printing with extra 
-walls (6 or more) to increase strength, particularly around the NPT connection, and to avoid warping.  If your slicer 
+Your experience with this may vary depending on the quality of your resulting print and your experience in getting 
+good results. These are advanced prints due to their size and the need to use higher temperature filament like ABS, ASA, 
+or PC. Even with higher temp plastic, avoid shocking the tray with large amounts of boiling water or it can expand and 
+crack if layers aren't strongly bonded. Along with the regular tricks for printing ABS, I would recommend printing with 
+extra walls (6 or more) to increase strength, particularly around the NPT connection, and to avoid warping.  If your slicer 
 supports ironing it is also nice to smooth the surfaces for easier cleaning. Your printer will need to be reliable in
 printing supports, both the drip tray and the grille have overhang areas regardless of how they are printed.
 
