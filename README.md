@@ -133,7 +133,7 @@ sudo reboot
 ### Software dependencies
 
 ```commandline
-sudo apt install python3-pandas libglib2.0-dev
+sudo apt install python3-pandas python3-pip libglib2.0-dev git
 sudo pip3 install bluepy
 ```
 
@@ -141,11 +141,13 @@ sudo pip3 install bluepy
 TODO: DEB package or install script
 
 ```commandline
-mkdir -p /opt/apollo/web
-cp -r apollo.py lib /opt/apollo
-chmod +x /opt/apollo/apollo.py
+git clone https://github.com/mlsorensen/apollo.git
+cd apollo
+sudo mkdir -p /opt/apollo/web
+sudo cp -r apollo.py lib /opt/apollo
+sudo chmod +x /opt/apollo/apollo.py
 sudo cp service/apollo.service /etc/systemd/system
-sudo cp service/apollo.env /etc/default/apollo
+sudo cp service/env /etc/default/apollo
 sudo systemctl daemon-reload
 sudo systemctl enable --now apollo
 ```
