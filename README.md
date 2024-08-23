@@ -133,10 +133,8 @@ sudo reboot
 ### Software dependencies
 
 ```commandline
-sudo apt install python3-pandas
-sudo apt install python3-pip
+sudo apt install python3-pandas python3-pip libglib2.0-dev git
 sudo pip3 install bluepy
-sudo apt install git
 ```
 
 #### Apollo Software
