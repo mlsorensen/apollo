@@ -29,6 +29,7 @@ def find_acaia_devices(timeout=3, backend='bluepy'):
     devices_start_names = [
         'ACAIA',
         'PYXIS',
+        'UMBRA',
         'LUNAR',
         'PROCH'
     ]
@@ -184,30 +185,28 @@ class Message(object):
         else:
             logging.debug('message ' + str(msgType) + ': %s' % payload)
 
-    def _decode_weight(self, weight_payload):
-        value = ((weight_payload[1] & 0xff) << 8) + (weight_payload[0] & 0xff)
-        unit = weight_payload[4] & 0xFF;
-        if (unit == 1):
-            value /= 10.0
-        elif (unit == 2):
-            value /= 100.0
-        elif (unit == 3):
-            value /= 1000.0
-        elif (unit == 4):
-            value /= 10000.0
-        else:
-            raise Exception('unit value not in range %d:' % unit)
-
-        if ((weight_payload[5] & 0x02) == 0x02):
-            value *= -1
-        return value
+    def _decode_weight(self, payload: bytes) -> float:
+         import struct
+         unit = payload[4] & 0xFF
+         scales = {1:10.0,2:100.0,3:1000.0,4:10000.0}
+         divisor = scales.get(unit) or (_ for _ in ()).throw(ValueError(f"Bad unit {unit}"))
+         sign = -1 if (payload[5] & 0x02) else 1
+ 
+         # Try big‑endian first (if that’s your dominant device)
+         raw = struct.unpack('>I', payload[0:4])[0]
+         w = sign * (raw / divisor)
+         if 0 <= abs(w) <= 2000:
+             return w
+ 
+         # Otherwise fall back to little‑endian
+         raw = struct.unpack('<I', payload[0:4])[0]
+         return sign * (raw / divisor)
 
     def _decode_time(self, time_payload):
         value = (time_payload[0] & 0xff) * 60
         value = value + (time_payload[1])
         value = value + (time_payload[2] / 10.0)
         return value
-
 
 class Settings(object):
 
@@ -562,13 +561,13 @@ class AcaiaScale(object):
                 characteristics = self.device.getCharacteristics()
                 pyxisWeightChar = None
                 for char in characteristics:
-                    if char.uuid == UUID('49535343-8841-43f4-a8d4-ecbe34729bb3'):
+                    if char.uuid == UUID('49535343-8841-43f4-a8d4-ecbe34729bb3') or char.uuid == UUID('0000fe41-8e22-4541-9d4c-21edae82ed19'):
                         logging.debug("Has Pyxis-style command char")
                         self.char = char
                         self.char_uuid = str(self.char.uuid)
                         self.isPyxisStyle = True
                         foundCommandChar = True
-                    elif char.uuid == UUID('49535343-1e4d-4bd9-ba61-23c647249616'):
+                    elif char.uuid == UUID('49535343-1e4d-4bd9-ba61-23c647249616') or char.uuid == UUID('0000fe42-8e22-4541-9d4c-21edae82ed19'):
                         logging.debug("Has Pyxis-style weight char")
                         pyxisWeightChar = char
                         self.weight_uuid = str(pyxisWeightChar.uuid)
