@@ -87,7 +87,7 @@ class FlowGraph:
 
 class DisplayData:
     def __init__(self, weight: float, sample_rate: float, memory: TargetMemory, flow_data: list, battery: int,
-                 paddle_on: bool, tgt_locked: bool, shot_time_elapsed: float, save_image: bool = False,
+                 paddle_on: bool, shot_time_elapsed: float, save_image: bool = False,
                  flow_smooth_factor: int = 8):
         self.weight = weight
         self.sample_rate = sample_rate
@@ -95,7 +95,6 @@ class DisplayData:
         self.flow_data = flow_data
         self.battery = battery
         self.paddle_on = paddle_on
-        self.target_locked = tgt_locked
         self.shot_time_elapsed = shot_time_elapsed
         self.save_image = save_image
         self.flow_smooth_factor = flow_smooth_factor
@@ -231,8 +230,6 @@ def draw_frame(width: int, height: int, data: DisplayData) -> Image:
     # target value
     fmt_target = "{:0.1f}".format(data.memory.target)
     target_font = value_font
-    if data.target_locked:
-        target_font = value_font_bold
     w = draw.textlength(fmt_target, target_font)
     h = target_font.size
     draw.text(((120 - w) / 2 + 120, (108 - h) / 2), fmt_target, fg_color, target_font)

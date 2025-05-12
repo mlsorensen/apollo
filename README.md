@@ -11,6 +11,20 @@ control over the Micra, it is simply collecting data from the scale and acting a
 Contributions are welcome, though this is very much designed to work according to my needs, for customization I'd 
 suggest forking and making it your own.
 
+# UPDATES
+
+## Umbra support
+I've added support for the Acaia Umbra scale, which is very similar to the Lunar scale, but it lacks a display and onboard
+controls. This is ideal for integrations. Aside from being much less expensive. it is a bonus not to have to deal with 
+accidentally touching controls. The full blank slab is also nice aesthetically.  Additionally, it has a "sleep" mode. This 
+enables Apollo to just connect to the scale when needed, and the scale will go to sleep when disconnected - you don't need 
+to touch the scale at all except occasionally to charge or clean it!
+
+To accomodate this I've made one fundamental adjustment. I've comandeered the "target lock" toggle switch to become a 
+"connect" button. In over a year I never used this button anyway. When depressed, it will connect to the scale and turn 
+on the screen. When disabled it will disconnect and the screen will turn off. For a regular Lunar scale, simply leave the 
+toggle depressed and you can continue to manage the system by turning on/off the Lunar as before.
+
 ## Hardware
 
 ### Materials
@@ -49,7 +63,7 @@ common/NC/NO connections on the relay side and 5v/gnd/control pin on the control
 
 ### Buttons
 
-I use a momentary pushbutton switch for the tare and memory buttons, a toggle switch for the "target enable" button,
+I use a momentary pushbutton switch for the tare and memory buttons, a toggle switch for the "scale connect" button,
 and an up/down rocker switch for adjusting the target. The up/down rocker switch can be thought of as two momentary
 switches with a common ground - you can use two separate buttons as well.
 

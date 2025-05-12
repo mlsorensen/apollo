@@ -51,7 +51,7 @@ def update_overshoot(scale: AcaiaScale, mgr: ControlManager):
 
 
 def check_target_disable_relay(scale: AcaiaScale, mgr: ControlManager):
-    if mgr.relay_on() and mgr.target_locked() and scale.weight > mgr.current_memory().target_minus_overshoot():
+    if mgr.relay_on() and scale.weight > mgr.current_memory().target_minus_overshoot():
         mgr.disable_relay()
         overshoot_update_executor.submit(update_overshoot, scale, mgr)
         logging.debug("Scheduling overshoot check and update")
@@ -74,7 +74,7 @@ def main():
     last_sample_time: Optional[float] = None
     last_weight: Optional[float] = None
     while not stop:
-        if control.try_connect_scale(scale):
+        if control.try_connect_scale(scale, mgr):
             check_target_disable_relay(scale, mgr)
         if scale is not None and scale.connected:
             (last_sample_time, last_weight) = update_display(scale, mgr, display, last_sample_time, last_weight)
@@ -101,7 +101,7 @@ def update_display(scale: AcaiaScale, mgr: ControlManager, display: Display, las
         g_per_s = round(1 / sample_rate * changed, 1)
         mgr.add_flow_rate_data(g_per_s)
     data = DisplayData(weight, sample_rate, mgr.current_memory(), mgr.flow_rate_data,
-                       scale.battery, mgr.relay_on(), mgr.target_locked(), mgr.shot_time_elapsed(),
+                       scale.battery, mgr.relay_on(), mgr.shot_time_elapsed(),
                        mgr.image_needs_save)
     display.display_on()
     display.put_data(data)
