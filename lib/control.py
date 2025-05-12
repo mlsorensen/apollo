@@ -9,7 +9,7 @@ from gpiozero import Button, DigitalOutputDevice
 import lib.pyacaia as pyacaia
 from lib.pyacaia import AcaiaScale
 
-default_target = 40.0
+default_target = 50.0
 default_overshoot = 2.0
 
 
@@ -35,7 +35,7 @@ class TargetMemory:
 class ControlManager:
     TARE_GPIO = 4
     MEM_GPIO = 21
-    TGT_LOCK_GPIO = 5
+    SCALE_CONNECT_GPIO = 5
     TGT_INC_GPIO = 12
     TGT_DEC_GPIO = 16
     PADDLE_GPIO = 20
@@ -70,13 +70,13 @@ class ControlManager:
         self.memory_button = Button(ControlManager.MEM_GPIO, pull_up=True)
         self.memory_button.when_pressed = self.__rotate_memory
 
-        self.target_lock_button = Button(ControlManager.TGT_LOCK_GPIO, pull_up=True)
+        self.scale_connect_button = Button(ControlManager.SCALE_CONNECT_GPIO, pull_up=True)
 
     def add_tare_handler(self, callback: Callable):
         self.tare_button.when_pressed = callback
 
-    def target_locked(self) -> bool:
-        return self.target_lock_button.value
+    def should_scale_connect(self) -> bool:
+        return self.scale_connect_button.value
 
     def relay_on(self) -> bool:
         return self.relay.value
@@ -116,7 +116,7 @@ class ControlManager:
     def __start_shot(self):
         logging.info("Start shot")
         self.flow_rate_data = deque([])
-        if self.target_locked() and self.tare_button.when_pressed is not None:
+        if self.tare_button.when_pressed is not None:
             self.tare_button.when_pressed()
             logging.info("Sent tare to scale")
             time.sleep(.5)
@@ -124,12 +124,11 @@ class ControlManager:
         self.relay.on()
 
 
-def try_connect_scale(scale: AcaiaScale) -> bool:
+def try_connect_scale(scale: AcaiaScale, mgr: ControlManager) -> bool:
     try:
-        if not scale.connected:
+        if not scale.connected and mgr.should_scale_connect():
             scale.device = None
-            devices = pyacaia.find_acaia_devices(timeout=2)
-            time.sleep(1)
+            devices = pyacaia.find_acaia_devices(timeout=1)
             if devices:
                 scale.mac = devices[0]
                 logging.debug("calling connect on mac %s" % scale.mac)
@@ -139,10 +138,15 @@ def try_connect_scale(scale: AcaiaScale) -> bool:
                 #     scale.disconnect()
                 #     time.sleep(1)
                 #     return False
+                return True
             else:
                 logging.debug("no devices found")
                 return False
-        else:
+        elif scale.connected and not mgr.should_scale_connect():
+            logging.debug("scale connected but should not be")
+            scale.disconnect()
+            return False
+        if scale.connected:
             logging.debug("Connected to scale %s" % scale.mac)
             return True
     except Exception as ex:
