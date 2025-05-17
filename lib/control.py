@@ -61,7 +61,7 @@ class ControlManager:
         self.tgt_dec_button.when_pressed = self.__decrement_target
         self.tgt_dec_button.when_held = lambda: self.__decrement_target(amount=1)
 
-        self.paddle_switch = Button(ControlManager.PADDLE_GPIO, pull_up=True)
+        self.paddle_switch = Button(ControlManager.PADDLE_GPIO, pull_up=True, bounce_time=0.1)
         self.paddle_switch.when_pressed = self.__start_shot
         self.paddle_switch.when_released = self.disable_relay
 
