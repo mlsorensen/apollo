@@ -4,7 +4,7 @@ import os.path
 import time
 import pandas as pd
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum, auto
 from multiprocessing import Process, Queue
 from typing import Optional
 
@@ -22,7 +22,6 @@ value_font_lg_bold = ImageFont.truetype("lib/font/Quicksand-Bold.ttf", 36)
 bg_color = "BLACK"
 light_bg_color = "DIMGREY"
 fg_color = "WHITE"
-
 
 class FlowGraph:
     def __init__(self, flow_data: list, series_color="BLUE", label_color="#c7c7c7", line_color="#5a5a5a", max_value=8,
@@ -113,6 +112,9 @@ class DisplaySize(Enum):
     SIZE_2_4 = 1
     SIZE_2_0 = 2
 
+class DisplayOrientation(StrEnum):
+    PORTRAIT = auto()
+    LANDSCAPE = auto()
 
 class Display:
     def __init__(self, data_queue: Queue, display_size: DisplaySize = DisplaySize.SIZE_2_0, image_save_dir: str = None):
@@ -131,6 +133,7 @@ class Display:
         self.display_off()
         self.process = None
         self.image_save_dir = image_save_dir
+        self.display_orientation = DisplayOrientation(os.environ.get('DISPLAY_ORIENTATION', DisplayOrientation.PORTRAIT))
 
     def start(self):
         self.process = Process(target=self.__update_display)
@@ -202,10 +205,13 @@ class Display:
                 continue
 
             img = None
-            if self.lcd.width = 240:
+            if self.display_orientation == DisplayOrientation.PORTRAIT:
                 img = draw_frame(self.lcd.width, self.lcd.height, data)
+            elif self.display_orientation == DisplayOrientation.LANDSCAPE:
+                img = draw_frame_wide(self.lcd.height, self.lcd.width, data)
             else:
-                img = draw_frame_wide(self.lcd.width, self.lcd.height, data)
+                logging.error("Failed to parse display orientation" % self.display_orientation)
+                sys.exit(1)
 
             if data.save_image and img is not None:
                 self.save_image(img)

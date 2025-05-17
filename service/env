@@ -1,2 +1,5 @@
 # Sets Logging level (INFO, DEBUG, WARN, ERROR)
 LOGLEVEL=INFO
+
+# Sets display rendering in 'portrait' or 'landscape'
+DISPLAY_ORIENTATION=portrait

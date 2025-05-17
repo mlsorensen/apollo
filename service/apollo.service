@@ -4,6 +4,7 @@ BindsTo=bluetooth.target
 
 [Service]
 ExecStart=python3 /opt/apollo/apollo.py
+EnvironmentFile=/etc/default/apollo
 WorkingDirectory=/opt/apollo
 Restart=always
 TimeoutSec=10
