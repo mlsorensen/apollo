@@ -14,7 +14,7 @@ default_overshoot = 2.0
 
 
 class TargetMemory:
-    def __init__(self, name: str, color="#376efa"):
+    def __init__(self, name: str, color="#ff1303"):
         self.name: str = name
         self.target: float = default_target
         self.overshoot: float = default_overshoot
@@ -41,12 +41,10 @@ class ControlManager:
     PADDLE_GPIO = 20
     RELAY_GPIO = 26
 
-    FLOW_RATE_SMOOTHING = 12
-
     def __init__(self, max_flow_points=500):
         self.flow_rate_data = deque([])
         self.flow_rate_max_points = max_flow_points
-        self.memories = deque([TargetMemory("A"), TargetMemory("B", "#25a602"), TargetMemory("C", "#ff1303")])
+        self.memories = deque([TargetMemory("A"), TargetMemory("B", "#25a602"), TargetMemory("C", "#376efa")])
         self.relay_off_time = timer()
         self.shot_timer_start: Optional[float] = None
         self.image_needs_save = False
@@ -61,7 +59,7 @@ class ControlManager:
         self.tgt_dec_button.when_pressed = self.__decrement_target
         self.tgt_dec_button.when_held = lambda: self.__decrement_target(amount=1)
 
-        self.paddle_switch = Button(ControlManager.PADDLE_GPIO, pull_up=True)
+        self.paddle_switch = Button(ControlManager.PADDLE_GPIO, pull_up=True, bounce_time=0.1)
         self.paddle_switch.when_pressed = self.__start_shot
         self.paddle_switch.when_released = self.disable_relay
 

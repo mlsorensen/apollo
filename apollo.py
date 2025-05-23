@@ -27,6 +27,9 @@ overshoot_update_executor = ThreadPoolExecutor(max_workers=1)
 logLevel = os.environ.get('LOGLEVEL', 'INFO').upper()
 logPath = os.environ.get('LOGFILE', '/var/log/apollo.log')
 
+refreshRate = float(os.environ.get('REFRESH_RATE', '0.1'))
+smoothing = round(1 / refreshRate)
+
 stdout_handler = logging.StreamHandler(stream=sys.stdout)
 stdout_handler.setLevel(logging.INFO)
 file_handler = handlers.TimedRotatingFileHandler(filename=logPath, when='midnight', backupCount=4)
@@ -66,7 +69,8 @@ def main():
     display = Display(display_data_queue, display_size=DisplaySize.SIZE_2_0, image_save_dir=WEB_DIR)
     display.start()
 
-    mgr = ControlManager()
+    # we need enough data points to capture 60s shot
+    mgr = ControlManager(max_flow_points=round(60 / refreshRate))
     scale = AcaiaScale(mac='')
 
     mgr.add_tare_handler(lambda channel: scale.tare())
@@ -80,7 +84,7 @@ def main():
             (last_sample_time, last_weight) = update_display(scale, mgr, display, last_sample_time, last_weight)
         else:
             display.display_off()
-        time.sleep(.1)
+        time.sleep(refreshRate)
     if scale.connected:
         try:
             scale.disconnect()
@@ -102,7 +106,7 @@ def update_display(scale: AcaiaScale, mgr: ControlManager, display: Display, las
         mgr.add_flow_rate_data(g_per_s)
     data = DisplayData(weight, sample_rate, mgr.current_memory(), mgr.flow_rate_data,
                        scale.battery, mgr.relay_on(), mgr.shot_time_elapsed(),
-                       mgr.image_needs_save)
+                       mgr.image_needs_save, smoothing)
     display.display_on()
     display.put_data(data)
     mgr.image_needs_save = False

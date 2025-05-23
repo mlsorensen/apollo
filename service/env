@@ -1,2 +1,9 @@
 # Sets Logging level (INFO, DEBUG, WARN, ERROR)
 LOGLEVEL=INFO
+
+# Sets display rendering in 'portrait' or 'landscape'
+DISPLAY_ORIENTATION=portrait
+
+# Sets refresh rate of display, in seconds. This has effects on the max data points 
+# displayed, we try to max the graph at 60s
+REFRESH_RATE=0.1
