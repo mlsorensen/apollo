@@ -35,14 +35,23 @@ of the toggle switch to select target weight.
 The "Apollo top cover" 3d printing models are in the doc folder.
 
 In my setup I migrated from the Pi Zero 2W to the Raspberry Pi 5, which is overkill CPU-wise and I actually underclock to
-1600MHz, but it gives smoother frame rates. I'm sure a Pi 4 or 3 would work too. I use the lite image since we don't need
-a full GUI. I insulate the back of the device with tape and tuck it in the open space on the right near the steam wand.
-I have monitored temperatures closely and not experienced a high enough temperature to throttle.
+1600MHz, but it gives smoother frame rates. I'm sure a Pi 4 or 3 would work too. I use the lite Raspbian image since we 
+don't need a full GUI. I insulate the back of the device with tape and tuck it in the open space on the right near the 
+steam wand.
+
+I have monitored temperatures closely and not experienced a high enough temperature to throttle the Pi while installed. 
+Consider printing the top cover in something more heat resistant like ABS or ASA. I printed in PLA Carbon Fiber for a 
+nice texture, rated to withstand 55C, and I've coated the bottom inside shell with a thin layer of neoprene foam. So far 
+I haven't seen the top exceed 42C.
+
+I have replaced the top cover screws with M4-0.7 screws made of non-stainless and added 10mm magnets into the top
+cover to hold it in place without visible fasteners.
 
 ![image](./doc/apollo-top-cover-wiring.png)
 
 ## Configuration variables
-There are some new variables to control framerates and display orientation at `/etc/default/apollo`.
+There are some new variables to control framerates and display orientation at `/etc/default/apollo`, documented in the
+comments of this file (aka `service/env` in this repo).
 
 ## Hardware
 
