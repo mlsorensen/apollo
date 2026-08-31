@@ -1,3 +1,7 @@
+#
+
+This project is archived, see [Apollo2](https://github.com/mlsorensen/Apollo2)
+
 
 # Apollo for LM Micra/Acaia Lunar
 
